@@ -1,18 +1,20 @@
 # whiteboardkit
 
-A Firestore Wrapper library for binding and mapping documents to class entities. Enjoy !
+A Firestore Wrapper library for binding and mapping documents to dart classes. Enjoy !
 
-![Package demo](screenshot.gif)
+## Features
+- Maps Firestore's documents to existing dart classes.
+- fills up id from document's id.
+- Resovles `{userId}` in path to currently signed-in Firebase Auth user's uid e.g `profiles/{userId}`.
+- Automatic off/on `.data()` stream subscription when path contains `{userId}` (see usage example below).
 
 ## Usage
-
-import whiteboardkit.dart
 
 ```dart
 import 'package:firestore_entity/firestore_entity.dart';
 ```
 
-given we have the following class
+given we have the following classes represent our application's model entities:
 
 ```dart
   class Profile {
@@ -29,44 +31,97 @@ given we have the following class
           'points': this.points,
         };
   }
-```
+  
+  class Book {
+    String id;
+    String title;
 
-we can create a entity reference to point to an existing document with `FirestoreEntity` class
-
-```dart
-  GestureWhiteboardController controller;
-
-  @override
-  void initState() {
-    controller = new GestureWhiteboardController();
-    controller.onChange().listen((draw){
-      //do something with it
-    });
-    super.initState();
+    Book({this.id, this.title});
+    factory Book.fromJson(Map<String, dynamic> json) => Book(
+          id: json['id'] as String,
+          title: json['title'] as String,
+        );
+    Map<String, dynamic> toJson() => <String, dynamic>{
+          'id': this.id,
+          'title': this.title,
+        };
   }
 ```
 
-place your Whiteboard inside a constrained widget ie. container,Expanded etc
+we can create a reference to an existing document in Firestore using `FirestoreEntity` class
 
 ```dart
-@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: Whiteboard(
-                controller: controller,
-              ),
-            ),
-          ],
-        ),
-      ),
+    profileEntity = FirestoreEntity<Profile>(
+      "profiles/{userId}",
+      (json) => Profile.fromJson(json),
+      (item) => item.toJson(),
     );
-  }
+
+    // get document's id
+    String profileId = profileEntity.id;
+
+    // get document's path
+    String profilePath = profileEntity.path;
+
+    // get document
+    Profile profile = await profileEntity.get();
+
+    // update document
+    await profileEntity.update(profile);
+
+    // update specific fields in a document
+    await profileEntity.updateData({"points": 200});
+
+    // set document
+    await profileEntity.set(profile);
+
+    // delete document
+    await profileEntity.delete();
+
+    // is document exists
+    bool exists = await profileEntity.exists();
+
+    // stream changes (triggerd once subscribed with latest value)
+    StreamSubscription<Profile> subscription =
+        profileEntity.data().listen((profile) {
+      print(profile.id);
+    });
+    subscription.cancel();
+
+    // latest stored offline value
+    Profile profileOffline = profileEntity.value;
+```
+
+we can also iniate collection reference using `FirestoreCollection` class
+
+```dart
+    //collection: path can also have {userId} variable e.g. "users/{userId}/myBooks"
+    var booksCol = FirestoreCollection<Book>(
+      "books",// or "users/{userId}/myBooks"
+      (json) => Book.fromJson(json),
+      (item) => item.toJson(),
+    ).where("points", isGreaterThan: 200);
+
+    // get collection's path
+    String booksPath = booksCol.path;
+
+    // get all documents
+    List<Book> books = await booksCol.get();
+
+    // get all documents wrapped in FirestoreEntity class
+    List<FirestoreEntity<Book>> booksEntities = await booksCol.getEntities();
+    booksEntities[0].updateData({"new": true});
+
+    // add new document then get it's id
+    FirestoreEntity<Book> bookEntity =
+        await booksCol.add(new Book(title: "book 1"));
+    var book1_Id = bookEntity.id; // new
+
+    // stream changes (triggerd once subscribed with latest value)
+    booksCol.data().listen((books) {
+      print(books.length);
+    });
+
+    // latest stored offline value
+    List<Book> booksOffline = booksCol.value;
 ```

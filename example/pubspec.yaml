@@ -21,14 +21,10 @@ dependencies:
     sdk: flutter
   firestore_entity:
     path: ../
-  json_annotation: ^3.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^1.8.1
-  json_serializable: ^3.3.0
-
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

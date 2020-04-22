@@ -5,22 +5,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'firestore_auth_info.dart';
+import 'firestore_common.dart';
 import 'firestore_helper.dart';
 
-class FirestoreEntity<T> {
+class FirestoreEntity<T> extends FirestoreCommon<T> {
   static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   // Stream<T> stream;
 
   T _lastValue;
-  FromJson<T> _fromJson;
-  ToJson<T> _toJson;
   String _path;
   BehaviorSubject<T> _itemChangesSubscription;
   // Stream<T> _stream;
 
-  FirestoreEntity(String docPath, FromJson<T> fromJson, ToJson<T> toJson) {
-    _fromJson = fromJson;
-    _toJson = toJson;
+  FirestoreEntity(String docPath, FromJson<T> fromJson, ToJson<T> toJson)
+      : super(fromJson, toJson) {
     _path = docPath;
     // stream = _itemChanges()
     //   ..listen((item) {
@@ -28,23 +26,26 @@ class FirestoreEntity<T> {
     //   });
   }
 
+  FirestoreEntity.fromExistingEntity(
+      String docPath, T item, FromJson<T> fromJson, ToJson<T> toJson)
+      : super(fromJson, toJson) {
+    _path = docPath;
+    _lastValue = item;
+  }
+
   Firestore get firestore => FirestoreHelper.firestore;
 
   T get value => _lastValue;
 
-  Map<String, dynamic> _toData(T entity) {
-    var data = _toJson(entity);
-    if (data == null) return null;
-    data.removeWhere((key, value) => key == "id");
+  String get id => _path?.split("/")?.last;
 
-    return data;
-  }
+  String get path => _path;
 
   Future<T> get() async {
     var snapshot =
         await firestore.document(FirebaseAuthInfo.resolvePath(_path)).get();
 
-    return _lastValue = FirestoreHelper.fromSnapshot(snapshot, _fromJson);
+    return _lastValue = fromSnapshot(snapshot);
   }
 
   Future<bool> exists() async {
@@ -57,13 +58,13 @@ class FirestoreEntity<T> {
   Future<void> set(T entity, {merge = false}) async {
     await firestore
         .document(FirebaseAuthInfo.resolvePath(_path))
-        .setData(_toData(entity), merge: merge);
+        .setData(toData(entity), merge: merge);
   }
 
   Future<void> update(T entity) async {
     await firestore
         .document(FirebaseAuthInfo.resolvePath(_path))
-        .updateData(_toData(entity));
+        .updateData(toData(entity));
   }
 
   Future<void> updateData(Map<String, dynamic> data) async {
@@ -89,23 +90,30 @@ class FirestoreEntity<T> {
       onCancel: () => _documentChanges?.cancel(),
     );
 
-    FirebaseAuthInfo.onAuthChange().listen((authed) {
-      if (authed) {
-        // if (documentChanges == null)
-        _documentChanges = firestore
-            .document(FirebaseAuthInfo.resolvePath(_path))
-            .snapshots()
-            .listen((snapshot) async {
-          print("Document Changed");
-          _itemChangesSubscription.add(
-              _lastValue = FirestoreHelper.fromSnapshot(snapshot, _fromJson));
-        });
-      } else {
-        _documentChanges?.cancel();
-        _itemChangesSubscription.add(null);
-        FirebaseAuthInfo.setAuthState(false);
-      }
-    });
+    if (FirebaseAuthInfo.hasUserParamInPath(_path))
+      FirebaseAuthInfo.onAuthChange().listen((authed) {
+        if (authed) {
+          // if (documentChanges == null)
+          _documentChanges = firestore
+              .document(FirebaseAuthInfo.resolvePath(_path))
+              .snapshots()
+              .listen((snapshot) async {
+            _itemChangesSubscription.add(_lastValue = fromSnapshot(snapshot));
+          });
+        } else {
+          _documentChanges?.cancel();
+          _itemChangesSubscription.add(null);
+          FirebaseAuthInfo.setAuthState(false);
+        }
+      });
+    else
+      _documentChanges = firestore
+          .document(FirebaseAuthInfo.resolvePath(_path))
+          .snapshots()
+          .listen((snapshot) async {
+        _itemChangesSubscription.add(_lastValue = fromSnapshot(snapshot));
+      });
+
     return _itemChangesSubscription.stream;
   }
 

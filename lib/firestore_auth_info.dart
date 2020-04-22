@@ -1,10 +1,8 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'firestore_helper.dart';
-
 
 class FirebaseAuthInfo {
   static String userId = "";
@@ -29,6 +27,7 @@ class FirebaseAuthInfo {
     }
   }
 
-  static String resolvePath(String path) =>
-      path.replaceAll("{userId}", userId);
+  static String resolvePath(String path) => path.replaceAll("{userId}", userId);
+
+  static bool hasUserParamInPath(String path) => path.contains("{userId}");
 }

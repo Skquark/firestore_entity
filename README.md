@@ -1,27 +1,37 @@
 # whiteboardkit
 
-A Flutter whiteboard widget with so much extendability and flexibility to be used with no need to rewrite your own whiteboard. Enjoy !
+A Firestore Wrapper library for binding and mapping documents to class entities. Enjoy !
 
-![Package demo](screenshot.gif) 
+![Package demo](screenshot.gif)
 
-## Installation
-
-Add the following to pubspec.yaml
-```yaml
-dependencies:
-  ...
-  whiteboardkit: ^0.1.6
-```
-
-## Usage Example
+## Usage
 
 import whiteboardkit.dart
 
 ```dart
-import 'package:whiteboardkit/whiteboardkit.dart';
+import 'package:firestore_entity/firestore_entity.dart';
 ```
 
-define GestureWhiteboardController and listen to change event
+given we have the following class
+
+```dart
+  class Profile {
+    String id;
+    int points;
+
+    Profile({this.id, this.points});
+    factory Profile.fromJson(Map<String, dynamic> json) => Profile(
+          id: json['id'] as String,
+          points: json['points'] as int,
+        );
+    Map<String, dynamic> toJson() => <String, dynamic>{
+          'id': this.id,
+          'points': this.points,
+        };
+  }
+```
+
+we can create a entity reference to point to an existing document with `FirestoreEntity` class
 
 ```dart
   GestureWhiteboardController controller;
@@ -60,4 +70,3 @@ place your Whiteboard inside a constrained widget ie. container,Expanded etc
     );
   }
 ```
-

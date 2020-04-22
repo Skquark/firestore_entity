@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whiteboardkit/whiteboardkit.dart';
+import 'package:firestore_entity/firestore_entity.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,15 +24,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  GestureWhiteboardController controller;
 
   @override
   void initState() {
-    controller = new GestureWhiteboardController();
-    controller.onChange().listen((draw){
-      //do something with it
-    });
     super.initState();
+
+    FirestoreEntity<Profile>
   }
 
   @override
@@ -45,11 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Expanded(
-              child: Whiteboard(
-                controller: controller,
-              ),
-            ),
+            Container()
           ],
         ),
       ),
@@ -58,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void dispose() {
-    controller.close();
     super.dispose();
   }
 }

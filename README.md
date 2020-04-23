@@ -1,4 +1,4 @@
-# whiteboardkit
+# Firestore Entity
 
 A Firestore Wrapper library for binding and mapping documents to dart classes. Enjoy !
 

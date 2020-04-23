@@ -40,7 +40,7 @@ class FirestoreCollection<T> extends FirestoreCommon<T> {
   String get path => _path;
 
   FirestoreEntity<T> document(String id) {
-    var entity = new FirestoreEntity("${_path}/${id}", _fromJson, _toJson);
+    var entity = new FirestoreEntity(_path+"/"+id, _fromJson, _toJson);
     // entity.get();
     return entity;
   }

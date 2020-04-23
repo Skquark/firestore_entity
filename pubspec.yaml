@@ -1,6 +1,6 @@
 name: firestore_entity
 description: A Firestore helper library for binding and mapping documents to class entities.
-version: 0.2.2
+version: 0.2.3
 homepage: https://abdulaziz.dev
 repository: https://github.com/abdulaziz-mohammed/firestore_entity
 
@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^0.4.4+3
-  firebase_auth: ^0.15.5+3
-  cloud_firestore: ^0.13.4+2
+  firebase_auth: ^0.16.0
+  cloud_firestore: ^0.13.5
   rxdart: ^0.24.0
 
 dev_dependencies:

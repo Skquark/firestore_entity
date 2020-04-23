@@ -51,7 +51,7 @@ given we have the following classes represent our application's model entities:
 we can create a reference to an existing document in Firestore using `FirestoreEntity` class
 
 ```dart
-    profileEntity = FirestoreEntity<Profile>(
+    var profileEntity = FirestoreEntity<Profile>(
       "profiles/{userId}",
       (json) => Profile.fromJson(json),
       (item) => item.toJson(),
@@ -92,7 +92,36 @@ we can create a reference to an existing document in Firestore using `FirestoreE
     Profile profileOffline = profileEntity.value;
 ```
 
-we can also iniate collection reference using `FirestoreCollection` class
+we can use `FirestoreEntity<T>.data()` in `StreamBuilder` like:
+
+```dart
+
+@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            StreamBuilder(
+              stream: profileEntity.data(),
+              builder: (context, AsyncSnapshot<Profile> snapshot) {
+                return Text(
+                    "my points: " + snapshot.data?.points?.toString() ?? "0");
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+```
+
+we can also initiate a collection reference using `FirestoreCollection` class
 
 ```dart
     //collection: path can also have {userId} variable e.g. "users/{userId}/myBooks"

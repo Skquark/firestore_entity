@@ -22,6 +22,7 @@ class FirestoreCollection<T> extends FirestoreCommon<T> {
     _fromJson = fromJson;
     _toJson = toJson;
     _path = collectionPath;
+    init();
   }
 
   FirestoreCollection.fromQuery(Query query, String collectionPath,
@@ -31,16 +32,18 @@ class FirestoreCollection<T> extends FirestoreCommon<T> {
     _toJson = toJson;
     _path = collectionPath;
     _query = query;
+    init();
   }
 
-  Firestore get firestore => FirestoreHelper.firestore;
+  Firestore get firestore => FirestoreCommon.firestoreInstance;
 
   List<T> get value => _lastValue;
 
   String get path => _path;
 
   FirestoreEntity<T> document(String id) {
-    var entity = new FirestoreEntity(_path+"/"+id, _fromJson, _toJson);
+    var docPath = _path + "/" + id;
+    var entity = new FirestoreEntity(docPath, _fromJson, _toJson);
     // entity.get();
     return entity;
   }

@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'firestore_auth_info.dart';
+
 typedef T FromJson<T>(Map<String, dynamic> json);
 typedef Map<String, dynamic> ToJson<T>(T item);
 
 class FirestoreCommon<T> {
+  static final Firestore firestoreInstance = Firestore.instance;
+
   final FromJson<T> fromJson;
   final ToJson<T> toJson;
 
@@ -24,5 +28,13 @@ class FirestoreCommon<T> {
     data.removeWhere((key, value) => key == "id");
 
     return data;
+  }
+
+  bool failedRequiredAuth(String path) {
+    return (FirebaseAuthInfo.hasUserParamInPath(path) &&
+        FirebaseAuthInfo.userId == "");
+  }
+  init() {
+    FirebaseAuthInfo.init();
   }
 }

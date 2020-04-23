@@ -10,20 +10,15 @@ import 'firestore_helper.dart';
 
 class FirestoreEntity<T> extends FirestoreCommon<T> {
   static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  // Stream<T> stream;
 
   T _lastValue;
   String _path;
   BehaviorSubject<T> _itemChangesSubscription;
-  // Stream<T> _stream;
 
   FirestoreEntity(String docPath, FromJson<T> fromJson, ToJson<T> toJson)
       : super(fromJson, toJson) {
     _path = docPath;
-    // stream = _itemChanges()
-    //   ..listen((item) {
-    //     _lastValue = item;
-    //   });
+    init();
   }
 
   FirestoreEntity.fromExistingEntity(
@@ -31,9 +26,10 @@ class FirestoreEntity<T> extends FirestoreCommon<T> {
       : super(fromJson, toJson) {
     _path = docPath;
     _lastValue = item;
+    init();
   }
 
-  Firestore get firestore => FirestoreHelper.firestore;
+  Firestore get firestore => FirestoreCommon.firestoreInstance;
 
   T get value => _lastValue;
 
@@ -42,6 +38,7 @@ class FirestoreEntity<T> extends FirestoreCommon<T> {
   String get path => _path;
 
   Future<T> get() async {
+    if (failedRequiredAuth(_path)) return null;
     var snapshot =
         await firestore.document(FirebaseAuthInfo.resolvePath(_path)).get();
 
@@ -49,6 +46,7 @@ class FirestoreEntity<T> extends FirestoreCommon<T> {
   }
 
   Future<bool> exists() async {
+    if (failedRequiredAuth(_path)) return false;
     var snapshot =
         await firestore.document(FirebaseAuthInfo.resolvePath(_path)).get();
 
@@ -56,24 +54,31 @@ class FirestoreEntity<T> extends FirestoreCommon<T> {
   }
 
   Future<void> set(T entity, {merge = false}) async {
+    if (failedRequiredAuth(_path)) return;
+
     await firestore
         .document(FirebaseAuthInfo.resolvePath(_path))
         .setData(toData(entity), merge: merge);
   }
 
   Future<void> update(T entity) async {
+    if (failedRequiredAuth(_path)) return;
+
     await firestore
         .document(FirebaseAuthInfo.resolvePath(_path))
         .updateData(toData(entity));
   }
 
   Future<void> updateData(Map<String, dynamic> data) async {
+    if (failedRequiredAuth(_path)) return;
+
     await firestore
         .document(FirebaseAuthInfo.resolvePath(_path))
         .updateData(data);
   }
 
   Future<void> delete() async {
+    if (failedRequiredAuth(_path)) return;
     await firestore.document(FirebaseAuthInfo.resolvePath(_path)).delete();
   }
 

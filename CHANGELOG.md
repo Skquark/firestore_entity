@@ -9,3 +9,7 @@
 ## [0.2.3] - 24 April 2020.
 
 * upgrade deps.
+
+## [0.2.4] - 24 April 2020.
+
+* fix auth bugs.

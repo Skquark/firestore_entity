@@ -1,6 +1,6 @@
 name: firestore_entity
 description: A Firestore helper library for binding and mapping documents to class entities.
-version: 0.2.3
+version: 0.2.4
 homepage: https://abdulaziz.dev
 repository: https://github.com/abdulaziz-mohammed/firestore_entity
 

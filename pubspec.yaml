@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  json_annotation: ^3.0.1
   firebase_core: ^0.4.4+3
   firebase_auth: ^0.15.5+3
   cloud_firestore: ^0.13.4+2

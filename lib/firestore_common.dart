@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 typedef T FromJson<T>(Map<String, dynamic> json);
 typedef Map<String, dynamic> ToJson<T>(T item);

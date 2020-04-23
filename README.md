@@ -14,7 +14,9 @@ A Firestore Wrapper library for binding and mapping documents to dart classes. E
 import 'package:firestore_entity/firestore_entity.dart';
 ```
 
-given we have the following classes represent our application's model entities:
+### `FirestoreEntity` class
+
+Assuming we have `Profile` class model:
 
 ```dart
   class Profile {
@@ -31,24 +33,9 @@ given we have the following classes represent our application's model entities:
           'points': this.points,
         };
   }
-  
-  class Book {
-    String id;
-    String title;
-
-    Book({this.id, this.title});
-    factory Book.fromJson(Map<String, dynamic> json) => Book(
-          id: json['id'] as String,
-          title: json['title'] as String,
-        );
-    Map<String, dynamic> toJson() => <String, dynamic>{
-          'id': this.id,
-          'title': this.title,
-        };
-  }
 ```
 
-we can create a reference to an existing document in Firestore using `FirestoreEntity` class
+We can create a reference to an existing document in Firestore and manipulate it using `FirestoreEntity` class:
 
 ```dart
     var profileEntity = FirestoreEntity<Profile>(
@@ -92,7 +79,7 @@ we can create a reference to an existing document in Firestore using `FirestoreE
     Profile profileOffline = profileEntity.value;
 ```
 
-we can use `FirestoreEntity<T>.data()` in `StreamBuilder` like:
+we can use `.data()` stream method of `FirestoreEntity<T>` in `StreamBuilder` like:
 
 ```dart
 
@@ -121,7 +108,28 @@ we can use `FirestoreEntity<T>.data()` in `StreamBuilder` like:
 
 ```
 
-we can also initiate a collection reference using `FirestoreCollection` class
+### `FirestoreCollection` class
+
+Assuming we have `Book` class model:
+
+```dart
+  class Book {
+    String id;
+    String title;
+
+    Book({this.id, this.title});
+    factory Book.fromJson(Map<String, dynamic> json) => Book(
+          id: json['id'] as String,
+          title: json['title'] as String,
+        );
+    Map<String, dynamic> toJson() => <String, dynamic>{
+          'id': this.id,
+          'title': this.title,
+        };
+  }
+```
+
+we can also initiate a collection reference using `FirestoreCollection` class:
 
 ```dart
     //collection: path can also have {userId} variable e.g. "users/{userId}/myBooks"

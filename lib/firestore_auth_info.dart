@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'firestore_helper.dart';
-
 class FirebaseAuthInfo {
   static final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -16,11 +14,11 @@ class FirebaseAuthInfo {
   }
 
   static Future<void> close() async {
-    _onAuthChange.close();
+    await _onAuthChange.close();
   }
 
   static void setAuthState(bool authed) async {
-    var auth = await firebaseAuth.currentUser();
+    var auth = firebaseAuth.currentUser;
     userId = auth?.uid ?? "";
     if (_isAuthed != (auth != null && authed) || !_isAuthedInited) {
       _onAuthChange.sink.add(_isAuthed = (auth != null && authed));
@@ -35,7 +33,7 @@ class FirebaseAuthInfo {
   static bool initialized = false;
   static init() {
     if (initialized) return;
-    firebaseAuth.onAuthStateChanged.listen((auth) async {
+    firebaseAuth.authStateChanges().listen((auth) async {
       print("onAuthStateChanged");
 
       setAuthState(auth != null);
